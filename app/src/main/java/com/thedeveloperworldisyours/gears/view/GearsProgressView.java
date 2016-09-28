@@ -53,12 +53,12 @@ public class GearsProgressView extends View {
     /**
      * Pain Color
      */
-    private static final String PAINT_COLOR = "#7A6021";
+    private static final String PAINT_COLOR = "#b72d28";
 
     /**
      * Background Color
      */
-    private static final String BG_COLOR = "#F4C042";
+    private static final String BG_COLOR = "#cfcfcf";
 
     /**
      * space hourglass
@@ -97,7 +97,7 @@ public class GearsProgressView extends View {
 
     private float offsetY = DEFAULT_OFFSET_Y, mOffsetSpin, mOffsetSpinHight;
 
-    private Paint mPaint, mSunPaint, mBackgroundPaint;
+    private Paint mPaint, mCircle, mSunPaint, mBackgroundPaint;
 
     private TextPaint mTextPaint;
 
@@ -126,6 +126,11 @@ public class GearsProgressView extends View {
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeWidth(5);
         mPaint.setColor(Color.parseColor(PAINT_COLOR));
+
+        mCircle = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mCircle.setStyle(Paint.Style.STROKE);
+        mCircle.setStrokeWidth(20);
+        mCircle.setColor(Color.parseColor(PAINT_COLOR));
 
         mSunPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mSunPaint.setStyle(Paint.Style.STROKE);
@@ -191,7 +196,6 @@ public class GearsProgressView extends View {
 
 
         sunRadius = (mLineLength - mLineLength * RATIO_ARC_START_X) * .5f;
-
         calculateAndSetRectPoint();
         initAnimationDriver();
     }
@@ -264,12 +268,20 @@ public class GearsProgressView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawLine(mLineStartX, mLineStartY, mLineStartX + mLineLength, mLineStartY, mPaint);
-        canvas.drawCircle(calculateCenter(), mLineStartY, sunRadius, mPaint);
-        canvas.drawCircle(calculateCenter()+10, mLineStartHightY, sunRadius, mPaint);
 
-        drawRadiusHight(canvas);
+        //Line below
+        canvas.drawLine(mLineStartX, mLineStartY, mLineStartX + mLineLength, mLineStartY, mCircle);
+
+        //first gear
+        canvas.drawCircle(calculateCenter(), mLineStartY, sunRadius, mCircle);
+        canvas.drawCircle(calculateCenter(), mLineStartY, sunRadius /2, mPaint);
+        drawRadiusCenter(canvas);
         drawRadius(canvas);
+
+        //Second gear
+        canvas.drawCircle(calculateCenter()+10, mLineStartHightY, 4 * sunRadius / 3, mCircle);
+        canvas.drawCircle(calculateCenter()+10, mLineStartHightY, sunRadius / 2, mPaint);
+        drawRadiusHight(canvas);
 
         drawUnderLineView(canvas);
     }
@@ -289,6 +301,19 @@ public class GearsProgressView extends View {
             sunshineStopX = Math.cos(Math.toRadians(a + mOffsetSpin)) * (sunRadius + SPACE_SUNSHINE + HOURGLASS_LINE_LENGTH + mSunPaint.getStrokeWidth()) + getWidth() * .5f;
             sunshineStopY = Math.sin(Math.toRadians(a + mOffsetSpin)) * (sunRadius + SPACE_SUNSHINE + HOURGLASS_LINE_LENGTH + mSunPaint.getStrokeWidth()) + mLineStartY;
             if (sunshineStartY <= mLineStartY && sunshineStopY <= mLineStartY) {
+                canvas.drawLine((float) sunshineStartX, (float) sunshineStartY, (float) sunshineStopX, (float) sunshineStopY, mCircle);
+            }
+        }
+    }
+
+    private void drawRadiusCenter(Canvas canvas) {
+        for (int a = 0; a <= 360; a += HOURGLASS_SEPARATION_ANGLE) {
+            sunshineStartX = calculateCenter();
+            sunshineStartY = mLineStartY;
+
+            sunshineStopX = Math.cos(Math.toRadians(a + mOffsetSpin)) * (sunRadius / 2) + getWidth() * .5f;
+            sunshineStopY = Math.sin(Math.toRadians(a + mOffsetSpin)) * (sunRadius / 2) + mLineStartY;
+            if (sunshineStartY <= mLineStartY && sunshineStopY <= mLineStartY) {
                 canvas.drawLine((float) sunshineStartX, (float) sunshineStartY, (float) sunshineStopX, (float) sunshineStopY, mPaint);
             }
         }
@@ -296,14 +321,14 @@ public class GearsProgressView extends View {
 
     private void drawRadiusHight(Canvas canvas) {
         for (int a = 0; a <= 360; a += HOURGLASS_SEPARATION_ANGLE) {
-            sunshineStartX = calculateCenter();
-            sunshineStartY = mLineStartHightY;
+            sunshineStartX = Math.cos(Math.toRadians(a + mOffsetSpinHight)) * (sunRadius - SPACE_SUNSHINE + HOURGLASS_LINE_LENGTH + mSunPaint.getStrokeWidth()) + getWidth() * .5f;
+            sunshineStartY = Math.sin(Math.toRadians(a + mOffsetSpinHight)) * (sunRadius - SPACE_SUNSHINE + HOURGLASS_LINE_LENGTH + mSunPaint.getStrokeWidth()) + mLineStartHightY;
 
             sunshineStopX = Math.cos(Math.toRadians(a + mOffsetSpinHight)) * (sunRadius + SPACE_SUNSHINE + HOURGLASS_LINE_LENGTH + mSunPaint.getStrokeWidth()) + getWidth() * .5f;
             sunshineStopY = Math.sin(Math.toRadians(a + mOffsetSpinHight)) * (sunRadius + SPACE_SUNSHINE + HOURGLASS_LINE_LENGTH + mSunPaint.getStrokeWidth()) + mLineStartHightY;
 
             if (sunshineStartY <= mLineStartY && sunshineStopY <= mLineStartY) {
-                canvas.drawLine((float) sunshineStartX+10, (float) sunshineStartY, (float) sunshineStopX+10, (float) sunshineStopY, mPaint);
+                canvas.drawLine((float) sunshineStartX+10, (float) sunshineStartY, (float) sunshineStopX+10, (float) sunshineStopY, mCircle);
             }
         }
     }
